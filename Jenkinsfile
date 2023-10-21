@@ -1,30 +1,32 @@
-pipeline {
-    agent {
-        docker {
-            image 'maven:3.9.0'
-            args '-v /root/.m2:/root/.m2'
+node {
+    // Alur kerja akan dieksekusi pada slave/agent Jenkins
+
+    // Tahap 'Build'
+    stage('Build') {
+        // Tahap ini akan menggunakan Docker untuk menjalankan langkah-langkah build
+        def mavenImage = docker.image('maven:3.9.0').run("-v /root/.m2:/root/.m2")
+        try {
+            sh 'mvn -B -DskipTests clean package'
+        } finally {
+            mavenImage.stop()
         }
     }
-    stages {
-        stage('Build') {
-            steps {
-                sh 'mvn -B -DskipTests clean package'
-            }
+
+    // Tahap 'Test'
+    stage('Test') {
+        // Tahap ini juga akan menggunakan Docker untuk menjalankan langkah tes
+        def mavenImage = docker.image('maven:3.9.0').run("-v /root/.m2:/root/.m2")
+        try {
+            sh 'mvn test'
+            archiveArtifacts allowEmptyArchive: true, artifacts: 'target/surefire-reports/*.xml'
+        } finally {
+            mavenImage.stop()
         }
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'
-                }
-            }
-        }
-        stage('Deliver') {
-            steps {
-                sh './jenkins/scripts/deliver.sh'
-            }
-        }
+    }
+
+    // Tahap 'Deliver'
+    stage('Deliver') {
+        // Tahap ini menjalankan skrip deliver.sh
+        sh './jenkins/scripts/deliver.sh'
     }
 }
