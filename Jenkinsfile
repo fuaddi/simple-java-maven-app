@@ -24,7 +24,8 @@ node {
 
     // Tahap 'Deliver'
     stage('Deliver') {
-        // Tahap ini akan menjalankan skrip deliver.sh dalam lingkungan Jenkins yang ada
-        sh './jenkins/scripts/deliver.sh'
+        steps {
+            sh './jenkins/scripts/deliver.sh'
+        }
     }
 }
