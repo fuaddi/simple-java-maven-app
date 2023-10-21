@@ -1,33 +1,30 @@
 node {
     // Alur kerja akan dieksekusi pada slave/agent Jenkins
 
-    // Tahap 'Checkout' dan cek Docker image
-    stage('Checkout and Docker Image Check') { 
-	// Mengecek apakah image Docker 'maven:3.9.0' sudah ada
-        def dockerImageExists = sh(script: 'docker image inspect maven:3.9.0', returnStatus: true) == 0
-
-        if (!dockerImageExists) {
-            // Jika image tidak ada, unduh image Docker 'maven:3.9.0'
-            sh 'docker pull maven:3.9.0'
+    // Tahap 'Build'
+    stage('Build') {
+        // Tahap ini akan menggunakan Docker untuk menjalankan langkah-langkah build
+        docker.image('maven:3.9.0').inside('-v /root/.m2:/root/.m2') {
+            sh 'mvn -B -DskipTests clean package'
         }
     }
 
-    // Stage 'Build'
-    stage('Build') {
-        // Langkah ini akan menjalankan perintah build (Maven)
-        sh 'mvn -B -DskipTests clean package'
-    }
-
-    // Stage 'Test'
+    // Tahap 'Test'
     stage('Test') {
-        // Langkah ini akan menjalankan tes unit
-        sh 'mvn test'
+        // Tahap ini juga akan menggunakan Docker untuk menjalankan langkah tes
+        docker.image('maven:3.9.0').inside('-v /root/.m2:/root/.m2') {
+            sh 'mvn test'
+        }
+        post {
+            always {
+                junit 'target/surefire-reports/*.xml'
+            }
+        }
     }
 
-    // Stage 'Deliver'
+    // Tahap 'Deliver'
     stage('Deliver') {
-        // Langkah ini akan melakukan deploy aplikasi
-        // Gantilah dengan perintah yang sesuai dengan proyek Anda
+        // Tahap ini akan menjalankan skrip deliver.sh dalam lingkungan Jenkins yang ada
         sh './jenkins/scripts/deliver.sh'
     }
 }
