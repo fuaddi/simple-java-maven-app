@@ -21,9 +21,29 @@ pipeline {
                 }
             }
         }
-        stage('Deploy') {
+        
+	stage('Manual Aproval') {
             steps {
-		input message: 'Lanjutkan ke tahap Deploy? (Klik "Proceed" untuk melakukan deployment)'
+                script {
+                    // Meminta masukan dari pengguna
+                    def userInput = input(
+                        id: 'userInput',
+                        message: 'Lanjut ke tahap deploy?',
+                        parameters: [choice(name: 'Pilihan', choices: 'Ya,Tidak')]
+                    )
+
+                    if (userInput == 'Ya') {
+                        echo 'Melanjutkan ke tahap deployment'
+                    } else {
+                        echo 'Menghentikan alur kerja...'
+                        currentBuild.result = 'ABORTED'
+                    }
+                }
+            }
+        }
+	
+	stage('Deploy') {
+            steps {
                 sh './jenkins/scripts/deliver.sh'
 		sleep time : 1, unit :'MINUTES'		
             }
