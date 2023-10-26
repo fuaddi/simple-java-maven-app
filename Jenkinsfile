@@ -30,7 +30,7 @@ pipeline {
                         id: 'userInput',
                         message: 'Lanjut ke tahap deploy?',
                         parameters: [
-				choice(name: 'Pilihan1', choices: 'Ya')
+				choice(name: 'Pilihan1', choices: 'Ya'),
 				choice(name: 'Pilihan2', choices: 'Tidak')
 			]
                     )
