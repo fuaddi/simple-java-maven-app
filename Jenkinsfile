@@ -29,7 +29,10 @@ pipeline {
                     def userInput = input(
                         id: 'userInput',
                         message: 'Lanjut ke tahap deploy?',
-                        parameters: [choice(name: 'Pilihan', choices: 'Ya,Tidak')]
+                        parameters: [
+				choice(name: 'Pilihan', choices: 'Ya')
+				choice(name: 'Pilihan', choices: 'Tidak')
+			]
                     )
 
                     if (userInput == 'Ya') {
