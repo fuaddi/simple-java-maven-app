@@ -24,22 +24,7 @@ pipeline {
         
 	stage('Manual Aproval') {
             steps {
-                script {
-                    // Meminta masukan dari pengguna
-                    def userInput = input(
-                        id: 'userInput',
-                        message: 'Lanjut ke tahap deploy?',
-                        parameters: [
-				choice(name: 'Pilihan', choices: 'Ya, Tidak'),
-			]
-                    )
-
-                    if (userInput == 'Ya') {
-                        echo 'Melanjutkan ke tahap deployment'
-                    } else {
-                        echo 'Menghentikan alur kerja...'
-                        currentBuild.result = 'ABORTED'
-                    }
+                input message :'Lanjut ke tahap Deployment? (pilih proccess untuk lanjut)'
                 }
             }
         }
